@@ -1,0 +1,58 @@
+INIT=""    # openrc, runit, s6
+KERNEL="linux"
+TIMEZONE="America/New_York"
+LOCALE="en_US.UTF-8"
+ROOTPW=""
+HOSTNAME=""
+DESKTOP="none"    # artiplunk -l desktop
+EXTRA_PACKAGES=()
+VIMRC="yes"
+
+#   Device            Type
+TABLES=(
+)
+
+#   Device            Size      PartitionType
+PARTITIONS=(
+)
+
+#   Device      Name     Wipe  K  Cipher               Ksz  Hash       IterT VKey
+CRYPTO=(
+)
+
+LVM_PV=(
+)
+
+#   Label             Devices
+LVM_VG=(
+)
+
+#   Label             VG               Size
+LVM_LV=(
+)
+
+#   Device                            FSType    Label
+FORMAT=(
+)
+
+#   Device                            MountPt    Options
+MOUNT=(
+)
+
+# List of swap devices
+SWAPON=(
+)
+
+#   Username  ExtraGroups (or -)            Password
+USERS=(
+)
+
+#   Service         on/off
+SERVICES=(
+)
+
+#   Device              bios|efi
+GRUB=(
+)
+
+GRUB_CRYPT_DEVICE=""

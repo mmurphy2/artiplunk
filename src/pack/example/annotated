@@ -1,0 +1,210 @@
+# Specify the init system to be used on the installation target:
+# openrc      Installs Artix with the OpenRC init system (conservative choice)
+# runit       Installs Artix with the Runit supervisor
+# s6          Installs Artix with the s6 supervision suite
+INIT="openrc"
+
+# Base package set to install
+BASEPKGS=('base' 'base-devel')
+
+# Name of the kernel package to install. If in doubt, use linux or linux-lts.
+KERNEL="linux"
+
+# Timezone of the target system
+TIMEZONE="America/New_York"
+
+# Locale for the installed system. At this time, only one locale is supported.
+LOCALE="en_US.UTF-8"
+
+# Root password for the installed system. Leave empty to have the installer
+# prompt early in the install process.
+ROOTPW=""
+
+# Hostname for the installed system
+HOSTNAME="darkstar"
+
+# Desired desktop environment. Set to "none" to skip installation of X11 and a
+# graphical desktop.
+DESKTOP="plasma"
+
+# Desired display manager (sddm is the only one supported; none for console).
+# Set login type to graphical or console.
+DISPLAY_MANAGER="sddm"
+LOGIN_TYPE="graphical"
+
+# Group or user to have sudo access. Set to "none" to disable.
+CONFIGURE_SUDO="%wheel"
+
+# To install extra packages beyond those selected by the installer, create a
+# text file with the packages listed one per line. Pack the text file into
+# this configuration file using:
+#
+# cat the_text_file | artiplunk --pack extrapkgs path_to_this_file
+#
+# If a small number of extra packages is desired, it might be preferable to
+# use the EXTRA_PACKAGES array. Each entry is a single package name.
+EXTRA_PACKAGES=(sl dmidecode openssh openssh-${INIT})
+
+# Append a custom vimrc to /etc/vimrc on the target system. If the
+# configuration file has a vimrc packed at template/etc/vimrc, then that one
+# will be used. Otherwise, the vimrc packed into the installer will be used.
+VIMRC="yes"
+
+
+# Partitioning settings. For each device to be partitioned, set the table type
+# to dos or gpt for the target device. For each device, specify the partitions
+# as their final device nodes. Each partition entry must specify the size of
+# the partition and the partition type. The partition size may be "fill" for
+# one of the partitions, which will expand that partition to fill available
+# space on the drive. For a list of recognized partition types, run:
+#
+# artiplunk --unpack resource/partition_types
+#
+# Alternatively, the partition type can be specified using the type code (DOS
+# partitions) or GUID (GPT).
+
+#   Device            Type
+TABLES=(
+    "/dev/sda         gpt"
+)
+
+#   Device            Size      PartitionType
+PARTITIONS=(
+    "/dev/sda1        1M        biosboot"
+    "/dev/sda2        500M      esp"
+    "/dev/sda3        fill      linux"
+)
+
+
+# Cryptographic table. In this table, each device that will be set up with a
+# LUKS encrypted container is specified. Both physical partitions and LVM
+# logical volumes may be specified in this table. For each device, the device
+# node is followed by the name to be used with cryptsetup luksOpen. If the
+# wipe option is "yes", the device will be wiped with random data prior to
+# creating the LUKS container. This procedure is recommended the first time a
+# LUKS container is created on the device, since it hides the extent of the
+# file system inside the container. When reusing a device that has already
+# been wiped with random data, a wipe value of "no" may be used. With this
+# setting, the LUKS header region will be wiped, instead of the whole device.
+#
+# The cryptographic key (K) can be specified as follows:
+#  ?                 Prompt for a passphrase at the start of the installation
+#  :/path/to/file    Use the specified keyfile
+#  =somesecret       Hard-code the key into the configuration. If using this
+#                    option, be sure to GPG encrypt the configuration!
+#
+# Each device must have an encryption cipher specified, along with a key size
+# (Ksz), hash algorithm, and iteration time (IterT). In addition, a volume
+# key (VKey) can be generated, permitting the device to be unlocked at boot
+# time by the initrd, after GRUB has decrypted the boot partition, avoiding a
+# second prompt for the passphrase.
+#
+# DO NOT SET VKey TO yes IF YOU HAVE /boot ON AN UNENCRYPTED DEVICE! This
+# includes an unencrypted / if you don't have a separate /boot partition.
+# The generated initrd image would be readable by anyone booting your
+# system from a USB stick, completely defeating your encryption.
+#
+#   Device      Name     Wipe  K  Cipher               Ksz  Hash       IterT VKey
+CRYPTO=(
+    "/dev/sda3  mycrypt  yes   ?  serpent-xts-plain64  512  whirlpool  8000  yes"
+)
+
+
+# Logical Volume Manager (LVM). If using LVM, list the physical volumes in the
+# LVM_PV array. These volumes are mapped into volume groups using the LVM_VG
+# array. Logical volumes are specified using the LVM_LV array, in which each
+# entry has a label, volume group, and size.
+
+# List of LVM physical volume devices
+LVM_PV=(
+    "/dev/mapper/mycrypt"
+)
+
+# LVM volume groups to create: the volume group label is specified, followed
+# by a space-separated list of physical devices.
+#   Label             Devices
+LVM_VG=(
+    "vg_crypt         /dev/mapper/mycrypt"
+)
+
+# LVM logical volumes have a label, the volume group in which to create the
+# logical volume, and the size of the logical volume in a format accepted
+# by lvcreate(8).
+#   Label             VG               Size
+LVM_LV=(
+    "lv_swap          vg_crypt         2G"
+    "lv_root          vg_crypt         15G"
+    "lv_boot          vg_crypt         500M"
+)
+
+
+# Filesystem format settings. For each filesystem that needs to be formatted,
+# specify the device, format type (check the installation media for mkfs.*
+# commands for a list of available types), and filesystem label. If you want
+# to reuse a filesystem without formatting it, LEAVE IT OUT of the FORMAT
+# table! (Just put it in the MOUNT table.)
+#   Device                            Type      Label
+FORMAT=(
+    "/dev/sda2                        vfat      EFI"
+    "/dev/mapper/vg_crypt-lv_swap     swap      swap"
+    "/dev/mapper/vg_crypt-lv_root     ext4      fs_root"
+    "/dev/mapper/vg_crypt-lv_boot     ext4      fs_boot"
+)
+
+
+# Mount settings for the target system. These filesystems will be mounted for
+# the installation and will then be included in /etc/fstab on the target
+# system. The mount point is listed relative to the root of the target
+# system. Any specified mount options will be used at install time and
+# included in /etc/fstab.
+#
+# IMPORTANT: Filesystems that will be mounted inside one another MUST be
+# listed in mount order. For example, the entry for / must come first. The
+# entry for /boot must come before /boot/efi, etc.
+#   Device                            MountPt    Options (fstab)
+MOUNT=(
+    "/dev/mapper/vg_crypt-lv_root     /          defaults,noatime"
+    "/dev/mapper/vg_crypt-lv_boot     /boot      defaults,noatime"
+    "/dev/sda2                        /boot/efi  umask=0077"
+)
+
+
+# List of swap devices. These devices will be activated as part of the
+# install process. These devices DO need to be formatted in the FORMAT
+# table.
+SWAPON=(
+    "/dev/mapper/vg_crypt-lv_swap"
+)
+
+
+# User creation table. For each user, specify the username and extra groups to
+# which the user should be added. If the user has no additional groups beyond
+# the default, use a - for the extra groups. The password may be omitted, in
+# which case the installer will prompt for it at the beginning of the process.
+#   Username  ExtraGroups                    Password
+USERS=(
+    "user     wheel,network,input,lp,video   password"
+)
+
+
+# Services to enable at boot time. List each service, followed by on or off.
+# A service only needs to be listed to turn it on, or to disable a service
+# turned on by default. Otherwise, the service remains in the default state.
+#   Service          State
+SERVICES=(
+    "sshd            on"
+)
+
+
+# GRUB configuration. List each device on which to install GRUB, along with
+# the bootloader type (bios or efi). Both types can be installed by listing
+# the same device multiple times.
+GRUB=(
+    "/dev/sda           bios"
+    "/dev/sda           efi"
+)
+
+# If the root partition is on an encrypted volume, give the path to the
+# device holding the LUKS container. For installations into LVM inside
+# LUKS, this path is to the *outer* device.
+GRUB_CRYPT_DEVICE="/dev/sda3"

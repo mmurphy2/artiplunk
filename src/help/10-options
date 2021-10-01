@@ -1,0 +1,79 @@
+Options
+-------
+  -c <directory>   --cache <directory>
+    Use the specified <directory> as the installer cache, instead of the
+    default /tmp/artiplunk
+
+  -C   --clean
+    Performs the cleanup steps from a previously terminated installation,
+    including unmounting file systems and removing the cache directory.
+
+  -d   --debug
+    Enables debugging messages.
+
+  -D   --dry-run
+    Instead of actually performing the installation, display the commands
+    that would be run on the target system.
+
+  -e <step>   --end-step <step>
+    Stop the installer once <step> is complete. Note that cleanup actions will
+    NOT be performed.
+
+  -h   --help
+    Show this help message and exit.
+
+  -k <step>   --skip-step <step>
+    Skip a <step> in the installation process. To skip more than one step,
+    give this option multiple times.
+
+  -l <category>   --list <category>
+    Lists packed items in <category>.
+
+  -L    --list-categories
+    Displays a list of categories.
+
+  -o   --copy-log
+    Copy the Artiplunk installation log to /root/artiplunk.log on the
+    target system at the end of the install process.
+
+  -O   --copy-artiplunk
+    Make a copy of Artiplunk, with the installation configuration packed into
+    it, inside /root on the target system. The installer will be named
+    /root/artiplunk-hostname, where hostname will be the hostname set for
+    the newly installed system. If the system ever requires reinstallation,
+    this packed installer can be used with the -P option.
+
+  -p   --pack
+    Packs an item into the installer or configuration file.
+
+  -P   --packed-config
+    Install using a configuration packed into this script at the internal
+    path "config" instead of an external configuration file.
+
+  --proper
+    Configures the live execution environment properly for working with
+    Artiplunk configuration files. This step installs the proper editor.
+
+  -r   --resume
+    Resume a previously aborted installation.
+
+  -R   --rescue
+    Mount an installed system to permit manual repairs. This option is
+    equivalent to -S mount
+
+  -s <step>    --start-step <step>
+    Start the installation process at <step>, instead of at the beginning. If
+    used with -r, resumes from the specified <step>.
+
+  -S <step>    --step <step>
+    Peforms one <step> of the installation process, then stops. Does NOT
+    perform cleanup operations.
+
+  -u <item> --unpack <item>
+    Unpacks an item (internal help or template) from the installer or
+    configuration file.
+
+  -x <example>   --example <example>
+    Displays an example configuration file to standard output. Redirect this
+    output to use as a starting point for a configuration.
+

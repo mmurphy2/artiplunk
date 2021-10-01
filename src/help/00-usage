@@ -1,0 +1,7 @@
+Artiplunk: Automatic system installer for Artix
+
+Usage: %artiplunk% [options] [arguments]
+
+Depending upon the selected [options], one or more [arguments] may be
+required.
+

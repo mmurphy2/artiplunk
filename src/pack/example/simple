@@ -1,0 +1,29 @@
+HOSTNAME="darkstar"
+EXTRA_PACKAGES=(sl)
+
+#   Device            Type
+TABLES=(
+    "/dev/sda         gpt"
+)
+
+#   Device            Size      PartitionType
+PARTITIONS=(
+    "/dev/sda1        1M        biosboot"
+    "/dev/sda2        500M      linux"
+    "/dev/sda3        fill      linux"
+)
+
+FORMAT=(
+    "/dev/sda2                        ext4      fs_boot"
+    "/dev/sda3                        ext4      fs_root"
+)
+
+MOUNT=(
+    "/dev/sda3                        /          defaults,noatime"
+    "/dev/sda2                        /boot      defaults,noatime"
+)
+
+GRUB=(
+    "/dev/sda           bios"
+)
+

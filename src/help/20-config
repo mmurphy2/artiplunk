@@ -1,0 +1,10 @@
+Installation Configuration
+--------------------------
+There are two ways that the installation can be configured. In the simple
+case, a configuration file is passed as the single [argument] to the
+Artiplunk installer. This configuration file may be plain text (in Bash
+script format) or symmetrically encrypted using GPG. Alternatively, the
+configuration (plain or GPG encrypted) may be packed into the installer
+itself at the "config" internal path. To install with a packed
+configuration, use the -P [option].
+
